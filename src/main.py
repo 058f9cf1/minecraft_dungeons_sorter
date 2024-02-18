@@ -5,6 +5,7 @@ import json
 import sort_items
 import item_lists
 import extra_tools
+import saves
 
 
 #Sort by item name then power level
@@ -15,8 +16,11 @@ sorting = [lambda x: (item_lists.melee.index(x['type']), x['power']),	#Melee
 		   lambda x: (x['type'], x['power'])]							#Unknown
 
 #Name of the file to be loaded
-file_name = sys.argv[1]
-
+if(len(sys.argv) < 2):
+        file_name = saves.get(None)
+else:
+        file_name = saves.get(sys.argv[1])
+        
 #Load the json dats from file
 f = open(file_name)
 data = json.load(f)
