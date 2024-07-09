@@ -18,7 +18,7 @@ Alternatively, download the repo as a zip and unzip it.
 Open a terminal and run the following commands: 
 ```
 cd minecraft_dungeons_sorter/src/
-python main.py <path/to/savefile>
+python minecraft_dungeons_sorter.py <path/to/savefile>
 ```
 >[!NOTE]
 >If no save file is specified, the program will search for a decrypted save file in `%USERPROFILE%\Saved Games\Mojang Studios\Dungeons`.
