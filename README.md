@@ -1,26 +1,22 @@
 # Minecraft Dungeons Sorter
 A tool for sorting a Minecraft Dungeons inventory by item type, then alphabetically.
 
-## Dependencies
-Requires Python 3 to be installed.
+> [!IMPORTANT]
+> Back up your save before using! If any corruption occurs, the save can then be restored.
 
-## Installation
-Open a terminal and run the following command (requires git to be installed): 
+## Running from source
+
+### Dependencies
+> Requires ```Python 3``` and the ```pycryptodome``` module to be installed. ```git``` is required for the first method only.
+
+### Method 1 (requires git to be installed):
+- Open a terminal and run the following commands in order:
 ```
 git clone https://github.com/058f9cf1/minecraft_dungeons_sorter.git
+cd minecraft_dungeons_sorter/src
+python minecraft_dungeons_sorter.py <path/to/save>
 ```
-Alternatively, download the repo as a zip and unzip it.
+where <path/to/save> is the location of the Minecraft Dungeons save file.
 
-## Usage
-> [!WARNING]
-> Your Minecraft Dungeons save file must first be decrypted. Use [DungeonTools](https://github.com/HellPie/DungeonTools) to do this.
-
-Open a terminal and run the following commands: 
-```
-cd minecraft_dungeons_sorter/src/
-python minecraft_dungeons_sorter.py <path/to/savefile>
-```
->[!NOTE]
->If no save file is specified, the program will search for a decrypted save file in `%USERPROFILE%\Saved Games\Mojang Studios\Dungeons`.
-
-A new decrypted save file with the sorted inventory will be created in the same location as the unsorted one. Re-encrypt this new save file then remove "_sorted" from the file name.
+### Method 2:
+- Download the code as a zip file, unzip it, then run ```python minecraft_dungeons_sorter.py <path/to/save>``` in a terminal from the unzipped directory.

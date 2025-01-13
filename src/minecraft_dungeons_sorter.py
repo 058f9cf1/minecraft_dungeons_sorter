@@ -1,65 +1,73 @@
 #!/usr/bin/env python3
 
-import sys
-import json
+from sys import argv
+from Crypto.Cipher import AES
 
-import sort_items
 import item_lists
-import saves
-import extra_tools
+from sorting import sort_items
+
+key = b"\x5c\xeb\x9d\x0a\xeb\xb9\x5a\xc0\x27\x0b\x0a\xf6\x75\x3d\xfc\x0e\xe3\xe6\x8b\xb6\x94\x79\x02\x0f\x24\x30\xe2\xea\x00\x2b\xd4\xc9"
 
 
-#Get the save file from the argument if provided
-if(len(sys.argv) > 1):
-	file_name = sys.argv[1]
-	if not saves.valid_json(file_name):
-		print("Provided file not a valid json file")
-		file_name = None
+def finish(message):
+	print(message)
+	input("Press Enter to quit.")
+	raise SystemExit
 
-#Otherwise, search for save files
-else:
-	file_name = saves.search()
 
-#If a valid file
-if(not file_name == None):
-	#Load the json data from file
-	with open(file_name) as f:
-		data = json.load(f)
+def is_valid_save(file):
+	with open(file, 'rb') as f:
+		header = f.read(8)
 
-	#Get the inventories
-	inventory_items = data['items']
-	chest_items = data['storageChestItems']
+	return header == b'D001\x00\x00\x00\x00'
 
-	#Remove equipped items
-	equipped = []
-	not_equipped = []
-	for item in inventory_items:
-		if not 'inventoryIndex' in item:
-			equipped.append(item)
+
+def find_save():
+	print("TODO: Find Save.")
+
+
+def decrypt_save(file):
+	with open(file, 'rb') as f:
+		text = f.read()
+	
+	cipher = AES.new(key, AES.MODE_ECB)
+	dec = cipher.decrypt(text[8:])
+
+	return dec.decode()
+
+
+def encrypt_data(data):
+	cipher = AES.new(key, AES.MODE_ECB)
+	padding = ' ' * (16 - (len(data) % 16))
+	enc = cipher.encrypt(bytearray(data + padding, 'utf-8'))
+
+	return b"D001\x00\x00\x00\x00" + enc
+
+
+def write_file(file, data):
+	with open(file, 'wb') as f:
+		f.write(data)
+	print("Written to", file)
+
+
+if __name__ == "__main__":
+	if len(argv) > 1:
+		written = False
+		for file in argv[1:]:
+			if is_valid_save(file):
+				data = decrypt_save(file)
+				data = sort_items(data)
+				data = encrypt_data(data)
+				#write_file(file.rsplit(".", 1)[0] + "_sorted.dat", data)
+				write_file(file, data)
+				written = True
+			else:
+				print(file, "isn't a valid Minecraft Dungeons save.")
+		if written:
+			finish("Sucess!")
 		else:
-			not_equipped.append(item)
-
-	#Print out the not equipped items
-	print("Items to be sorted:")
-	extra_tools.print_nice(not_equipped)
-	extra_tools.print_nice(chest_items)
-
-	#Sort by item name then power level
-	sorting = [lambda x: (item_lists.melee.index(x['type']), x['power']),	#Melee
-			   lambda x: (item_lists.ranged.index(x['type']), x['power']),	#Ranged
-			   lambda x: (item_lists.armour.index(x['type']), x['power']),	#Armour
-			   lambda x: (item_lists.artefact.index(x['type']), x['power']),#Artefacts
-			   lambda x: (x['type'], x['power'])]							#Unknown
-
-	#Sort the items
-	inventory_items = equipped + sort_items.sort(not_equipped, sorting)
-	chest_items = sort_items.sort(chest_items, sorting)
-
-	#Write the sorted inventories back to the dictionary
-	data['items'] = inventory_items
-	data['storageChestItems'] = chest_items
-
-	#Write dictionary to outfile
-	new_file = file_name.rsplit(".", 1)[0] + "_sorted.json"
-	with open(new_file, "w") as out_file:
-		json.dump(data, out_file, indent = 1)
+			finish("Nothing written.")
+	else:
+		find_save()
+		#TODO
+		finish("Sucess!")
